@@ -8,11 +8,11 @@
         <version>2.7.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.gmarquezp</groupId>
-    <artifactId>spring-boot-clientes</artifactId>
+    <groupId>com.gmarquezp.jwt</groupId>
+    <artifactId>spring-boot-clientes-jwt</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-boot-clientes</name>
-    <description>spring-boot-clientes</description>
+    <name>spring-boot-clientes-jwt</name>
+    <description>spring-boot-clientes--jwt</description>
     <properties>
         <java.version>11</java.version>
     </properties>
@@ -110,6 +110,25 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
+
+        <!-- Dependencia para soportar JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.10.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.10.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.10.5</version>
+            <scope>runtime</scope>
+        </dependency>
 
     </dependencies>
 

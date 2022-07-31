@@ -1,5 +1,7 @@
 package com.gmarquezp.springbootclientes;
 
+import com.gmarquezp.springbootclientes.auth.filter.JWTAuthenticationFilter;
+import com.gmarquezp.springbootclientes.auth.filter.JWTAuthorizationFilter;
 import com.gmarquezp.springbootclientes.models.services.JpaUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.User.UserBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +23,7 @@ import javax.sql.DataSource;
 
 @Configuration
 // Anotacion para habilitar el Secured y PreAuthorize, para asegurar un controllador o endpoint
-@EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled=true)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
@@ -45,15 +48,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configurerGlobal(AuthenticationManagerBuilder builder) throws Exception {
 
         /*
-        * 1. Implementacion personalizada con el servicio de autenticacion
-        * */
+         * 1. Implementacion personalizada con el servicio de autenticacion
+         * */
 
         builder.userDetailsService(this.jpaUserDetailsService);
 
 
         /*
-        * 2. Implementacion con JDBC
-        * */
+         * 2. Implementacion con JDBC
+         * */
   /*      builder.jdbcAuthentication()
                 .dataSource(this.dataSource) // Definidnimos la conexion
                 .passwordEncoder(passwordEncoder()) // Definimos el algoritmo de encriptacion de passwords
@@ -63,8 +66,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 */
 
         /*
-        * 3. Implementacion con usuarios en Memoria
-        * */
+         * 3. Implementacion con usuarios en Memoria
+         * */
         /*
         PasswordEncoder encoder = passwordEncoder();
         // Especificando el algoritmo que usara para codificar las passwords
@@ -87,24 +90,20 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // Interceptor en cada una de las rutas
         http.authorizeRequests()
-                .antMatchers("/", "/css/**", "/js/**", "/images/**", "/clientes", "/locale").permitAll() // Acceso sin autenticacion
+                .antMatchers("/", "/css/**", "/js/**", "/images/**", /*"/clientes",*/ "/locale").permitAll() // Acceso sin autenticacion
                 .antMatchers("/uploads/**").hasRole("USER")
-                // Se usaran anotaciones en los controladores para autorizar o no una accion @Secured y @PreAuthorize
-                // .antMatchers("/clientes/ver/**").hasRole("USER") // Acceso con rol USER
-                // .antMatchers("/clientes/crear/**").hasAnyRole("ADMIN") // .hasAnyRole() // multiples roles
-                // .antMatchers("/facturas/**").hasAnyRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                .successHandler(this.successHandler) // Especificando el comportamiendo cuando sea satisfactorio el login
-                .permitAll()
-                .loginPage("/login") // Ruta de login, debe existir un controlador con esta ruta
-                .defaultSuccessUrl("/clientes", true) // Ruta de redireccionamiento cuando se loguee correctamente
-                .and()
                 .logout().permitAll()
-                .and()
-                .exceptionHandling().accessDeniedPage("/error_403"); // Ruta de acceso denegado
-        // .csrf().disable();
+
+                /*
+                 * Configuraciones para soportar JWT
+                 * */
+                .and().addFilter(new JWTAuthenticationFilter(authenticationManager())) // Implementando nuestro filtro personalizado de autenticacion
+                      .addFilter(new JWTAuthorizationFilter(authenticationManager()))  // Implementando el filtro que escuchara si se envia el token o no
+                .csrf().disable() // Se deshabilita por que usaremos JWT enves de crsf
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Se deshabilita a sin estado la sesion, ya que usaremos JWT
+
 
         System.out.println("*".repeat(100));
         System.out.println("Configurando Spring Security");

@@ -109,6 +109,7 @@ public class ClienteController {
     }
 
 
+
     @GetMapping({"/rest"})
     // @ResponseBody // Para que interprete el strem de respuesta a Json
     public @ResponseBody List<Cliente> listarRest() {
