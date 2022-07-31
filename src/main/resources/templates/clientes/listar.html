@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${titulo}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+</head>
+<body class="container">
+
+<!--Menu-->
+<nav th:replace="/componentes/menu :: header-menu"></nav>
+
+
+<div class="row">
+    <div class="col-12">
+        <h1 th:text="${titulo}" class="text-secondary"></h1>
+    </div>
+
+    <div class="col-12">
+    <!-- clientes?format=csv -->
+        <a th:href="@{'/clientes'(format='csv')}"
+           class="btn btn-outline-success btn-xs">Descargar CSV</a>
+        <a th:href="@{'/clientes'(format='json')}"
+           class="btn btn-outline-info btn-xs">Ver JSON</a>
+        <a th:href="@{'/clientes/rest'}"
+           class="btn btn-outline-warning btn-xs">Rest JSON</a>
+    </div>
+</div>
+
+
+<!-- Flash Messages -->
+<div th:replace="/componentes/flash-messages :: flash-messages"></div>
+
+
+<div class="row">
+    <div class="col-12">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <!--
+                text.cliente.nombre // tomara el texto de los archivos de messages por cada lenguaje
+                th:text="#{text.cliente.nombre}"
+                -->
+                <th th:text="#{text.cliente.nombre}"></th>
+                <th th:text="#{text.cliente.apellido}">Apellido</th>
+                <th th:text="#{text.cliente.email}">Email</th>
+                <th th:text="#{text.cliente.factura.fecha}">Fecha</th>
+                <th th:text="#{text.cliente.factura.fecha}">Fecha Creacion</th>
+                <th th:text="#{text.cliente.opciones}">Opciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cliente : ${clientes}">
+                <td th:text="${cliente.id}"></td>
+                <td th:text="${cliente.nombre}"></td>
+                <td th:text="${cliente.apellido}"></td>
+                <td th:text="${cliente.email}"></td>
+                <td th:text="${cliente.fecha}"></td>
+                <td th:if="${cliente.auditoria != null}" th:text="${cliente.auditoria.getCreatedAt()}"></td>
+                <!--
+                  sec:authorize="hasAnyRole('ROLE_ADMIN')" // Helper de Spring secutiry para mostrar o no elementos si tiene un role
+                -->
+                <td>
+                    <a th:href="@{/clientes/ver/} + ${cliente.id}"
+                       th:text="#{text.cliente.detalle.titulo}"
+                       class="btn btn-default btn-small"></a>
+                    <a th:href="@{/clientes/editar/} + ${cliente.id}"
+                       th:text="#{text.cliente.editar}"
+                       sec:authorize="hasAnyRole('ROLE_ADMIN')"
+                       class="btn btn-primary btn-small"></a>
+                    <a th:href="@{/clientes/eliminar/} + ${cliente.id}"
+                       th:text="#{text.cliente.factura.eliminar}"
+                       sec:authorize="hasAnyRole('ROLE_ADMIN')"
+                       class="ml-2 btn btn-danger btn-small"></a>
+                    <a th:href="@{/facturas/form/} + ${cliente.id}"
+                       th:text="#{text.cliente.factura.crear}"
+                       sec:authorize="hasAnyRole('ROLE_ADMIN')"
+                       target="_blank"
+                       class="btn btn-dark btn-small"></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!--Footer-->
+<footer th:replace="/componentes/footer :: footer"></footer>
+
+
+</body>
+</html>
